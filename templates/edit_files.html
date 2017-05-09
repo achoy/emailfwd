@@ -1,0 +1,60 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang="en-US">
+
+	<head>
+		<!-- meta -->
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="author" content="Albert Choy @askchoy">
+		<meta name="description" content="Choy Creative LLC">
+
+		<!-- title -->
+		<title>emfwd - in Editable Grid</title>
+
+		<script src="js/editablegrid.js"></script>
+		<!-- [DO NOT DEPLOY] --> <script src="js/editablegrid_renderers.js" ></script>
+		<!-- [DO NOT DEPLOY] --> <script src="js/editablegrid_editors.js" ></script>
+		<!-- [DO NOT DEPLOY] --> <script src="js/editablegrid_validators.js" ></script>
+		<!-- [DO NOT DEPLOY] --> <script src="js/editablegrid_utils.js" ></script>
+		<!-- [DO NOT DEPLOY] --> <script src="js/editablegrid_charts.js" ></script>
+		<link rel="stylesheet" href="js/editablegrid.css" type="text/css" media="screen">
+
+		<!-- include javascript and css files for jQuery, needed for the datepicker and autocomplete extensions -->
+		<script src="js/jquery-1.6.4.min.js" ></script>
+		<script src="js/jquery-ui-1.8.16.custom.min.js" ></script>
+		<link rel="stylesheet" href="js/jquery-ui-1.8.16.custom.css" type="text/css" media="screen">
+
+		<!-- include javascript using the engine -->
+		<script src="js/mainlogic.js"></script>
+		<link rel="stylesheet" href="js/demo.css" type="text/css" media="screen" />
+		<script type="text/javascript">
+				window.onload = function() {
+					editableGrid.onloadHTML("htmlgrid");
+				};
+		</script>
+		
+	</head>
+
+  <body>
+	<div id="wrap">
+		<h1>emfwd - Editable Grid Demo</h1>
+
+		<!-- Feedback -->
+		<div id="message"></div>
+
+		<!-- Grid filter -->
+		<label for="filter">Filter :</label>
+		<input type="text" id="filter"/>
+
+		<div id="tablecontent"></div>
+	  <table id="htmlgrid" class="testgrid">
+	  {% for item in items %}
+	  <TR>
+	    <TD>{{item.from_email}}</TD>
+			<TD>{{item.to_email}}</TD>
+	  </TR>
+	  {% endfor %}
+	  </table>
+
+	</div>
+  </body>
+</html>
