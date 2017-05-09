@@ -59,29 +59,45 @@ def root_path():
 @app.route('/js/<string:filename>', methods=['GET'])
 def download_js(filename):
     dirpath = os.path.join(root_path(), '../js')
-    print('js path', dirpath)
+    #print('js path', dirpath)
     return send_from_directory(directory=dirpath, filename=filename)
 
 @app.route('/assets/<string:filename>', methods=['GET'])
 def download_asset(filename):
     dirpath = os.path.join(root_path(), '../assets')
-    print('asset path', dirpath)
+    #print('asset path', dirpath)
     return send_from_directory(directory=dirpath, filename=filename)
 
-@app.route('/showdir')
-def edit_dir():
+@app.route('/data/emails.json')
+def load_emails():
+    metadata = []
+    metadata.append({'name' : 'from_email', 'datatype' : 'string', 'editable' : True})
+    metadata.append({'name' : 'to_email', 'datatype' : 'string', 'editable' : True})
+
     items = []
     with open("virtual.txt","r") as text:
+        idx = 1
         for line in text:
             from_email, to_email = line.split()
-            e = EmailMap(from_email, to_email)
-            print('{},{}'.format(e.from_email, e.to_email))
-            items.append(e)
+            e_dict = {
+                'id' : idx,
+                'values' : { 'from_email' : from_email, 'to_email' : to_email }
+            }
+            items.append(e_dict)
+            idx = idx + 1
 
-    loader = jinja2.FileSystemLoader('./templates/edit_files.html')
-    env = jinja2.Environment(loader=loader)
-    template = env.get_template('')
-    return template.render(items=items)
+    block_data = {
+        'metadata' : metadata,
+        'data' : items
+    }
+    resp = make_response(jsonify(block_data), 200)
+    resp.headers['Access-Control-Allow-Origin'] = '*'
+    return resp
+
+@app.route('/showdir')
+def edit_files_html():
+    dirpath = os.path.join(root_path(), '../templates')
+    return send_from_directory(directory=dirpath, filename='edit_files.html')
 
 @app.route('/showdir2')
 def show_dir2():

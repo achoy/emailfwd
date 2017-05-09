@@ -26,12 +26,13 @@
 		<!-- include javascript using the engine -->
 		<script src="js/mainlogic.js"></script>
 		<link rel="stylesheet" href="js/demo.css" type="text/css" media="screen" />
+
 		<script type="text/javascript">
 				window.onload = function() {
-					editableGrid.onloadHTML("htmlgrid");
+					editableGrid.onloadJSON("/data/emails.json");
 				};
 		</script>
-		
+
 	</head>
 
   <body>
@@ -46,14 +47,12 @@
 		<input type="text" id="filter"/>
 
 		<div id="tablecontent"></div>
-	  <table id="htmlgrid" class="testgrid">
-	  {% for item in items %}
-	  <TR>
-	    <TD>{{item.from_email}}</TD>
-			<TD>{{item.to_email}}</TD>
-	  </TR>
-	  {% endfor %}
-	  </table>
+
+		<!-- Paginator control -->
+		<div id="paginator"></div>
+
+		<!-- Edition zone (to demonstrate the "fixed" editor mode) -->
+		<div id="edition"></div>
 
 	</div>
   </body>
