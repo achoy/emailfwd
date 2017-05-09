@@ -81,9 +81,11 @@ def access_table():
 
 def write_table(emails):
     with open("virtual.txt",'w') as wf:
-        for key,value in emails.items():
-            wf.write("{}  {}\n".format(value.from_email, value.to_email))
-
+        keylist = emails.keys()
+        keylist.sort()
+        for key, in keylist:
+            email = emails[key]
+            wf.write("{}  {}\n".format(email.from_email, email.to_email))
 
 @app.route('/data/emails.json')
 def load_emails():
@@ -92,7 +94,6 @@ def load_emails():
     metadata.append({'name' : 'from_email', 'datatype' : 'string', 'editable' : True})
     metadata.append({'name' : 'to_email', 'datatype' : 'string', 'editable' : True})
     metadata.append({'name' : 'action', 'datatype' : 'html', 'editable' : False })
-
 
     items = []
     emails = access_table()
