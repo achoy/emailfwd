@@ -23,7 +23,7 @@ SCOPES = 'https://www.googleapis.com/auth/drive.metadata.readonly'
 CLIENT_SECRET_FILE = 'client_secret2.json'
 APPLICATION_NAME = 'emfwd'
 home_dir = os.path.expanduser('~')
-EmailMap = namedtuple('EmailMap', ['from_email', 'to_email'])
+EmailMap = namedtuple('EmailMap', ['key', 'from_email', 'to_email'])
 
 def get_credentials():
     """Gets valid user credentials from storage.
@@ -68,23 +68,40 @@ def download_asset(filename):
     #print('asset path', dirpath)
     return send_from_directory(directory=dirpath, filename=filename)
 
-@app.route('/data/emails.json')
-def load_emails():
-    metadata = []
-    metadata.append({'name' : 'from_email', 'datatype' : 'string', 'editable' : True})
-    metadata.append({'name' : 'to_email', 'datatype' : 'string', 'editable' : True})
-
-    items = []
+def access_table():
+    emails = dict()
     with open("virtual.txt","r") as text:
         idx = 1
         for line in text:
             from_email, to_email = line.split()
-            e_dict = {
-                'id' : idx,
-                'values' : { 'from_email' : from_email, 'to_email' : to_email }
-            }
-            items.append(e_dict)
+            e = EmailMap(idx, from_email, to_email)
+            emails[str(e.key)] = e
             idx = idx + 1
+        return emails
+
+def write_table(emails):
+    with open("virtual.txt",'w') as wf:
+        for key,value in emails.items():
+            wf.write("{}  {}\n".format(value.from_email, value.to_email))
+
+
+@app.route('/data/emails.json')
+def load_emails():
+    metadata = []
+    metadata.append({'name' : 'eid', 'datatype' : 'string', 'editable' : False})
+    metadata.append({'name' : 'from_email', 'datatype' : 'string', 'editable' : True})
+    metadata.append({'name' : 'to_email', 'datatype' : 'string', 'editable' : True})
+    metadata.append({'name' : 'action', 'datatype' : 'html', 'editable' : False })
+
+
+    items = []
+    emails = access_table()
+    for key,value in emails.items():
+        e_dict = {
+            'id' : key,
+            'values' : { 'eid': key, 'from_email' : value.from_email, 'to_email' : value.to_email }
+        }
+        items.append(e_dict)
 
     block_data = {
         'metadata' : metadata,
@@ -93,6 +110,37 @@ def load_emails():
     resp = make_response(jsonify(block_data), 200)
     resp.headers['Access-Control-Allow-Origin'] = '*'
     return resp
+
+@app.route('/update/', methods=['POST'])
+def update_data():
+    from_field = request.form['from_field']
+    from_row = request.form['from_row']
+    new_value = request.form['value']
+    print('from_field', from_field, 'from_row', from_row, 'new_value', new_value)
+    emails = access_table()
+    if from_row in emails:
+        e = emails[from_row]
+        if from_field == 'from_email':
+            newmap = EmailMap(from_row, new_value, e.to_email)
+        else:
+            newmap = EmailMap(from_row, e.from_email, new_value)
+        print('updated value', newmap)
+        emails[from_row] = newmap
+        write_table(emails)
+    return make_response("OK", 204)
+
+@app.route('/addrow/', methods=['POST'])
+def add_row():
+    eid = request.form['eid']
+    from_email = request.form['from_email']
+    to_email = request.form['to_email']
+    #print('from_field', from_field, 'from_row', from_row, 'new_value', new_value)
+    emails = access_table()
+    newmap = EmailMap(eid, from_email, to_email)
+    emails[eid] = newmap
+    print('updated value', newmap)
+    write_table(emails)
+    return make_response("OK", 204)
 
 @app.route('/showdir')
 def edit_files_html():
